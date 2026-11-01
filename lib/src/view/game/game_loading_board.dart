@@ -3,6 +3,7 @@ import 'package:dartchess/dartchess.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lichess_mobile/src/constants.dart';
+import 'package:lichess_mobile/src/model/account/account_repository.dart';
 import 'package:lichess_mobile/src/model/auth/auth_controller.dart';
 import 'package:lichess_mobile/src/model/challenge/challenge.dart';
 import 'package:lichess_mobile/src/model/challenge/challenge_repository.dart';
@@ -37,16 +38,22 @@ import 'package:share_plus/share_plus.dart';
 class const LobbyScreenLoadingContent(
   final GameSeek seek,
   final Future<void> Function() cancelGameCreation,
-) extends StatefulWidget {
+) extends ConsumerStatefulWidget {
   @override
-  State<LobbyScreenLoadingContent> createState() => _LobbyScreenLoadingContentState();
+  ConsumerState<LobbyScreenLoadingContent> createState() => _LobbyScreenLoadingContentState();
 }
 
-class _LobbyScreenLoadingContentState() extends State<LobbyScreenLoadingContent> {
+class _LobbyScreenLoadingContentState() extends ConsumerState<LobbyScreenLoadingContent> {
   Future<void>? _cancelGameCreationFuture;
 
   @override
   Widget build(BuildContext context) {
+    final account = ref.watch(accountProvider).value;
+    // A seek with a rating delta gets its rating range from the user's current rating.
+    final ratingRange =
+        widget.seek.ratingRange ??
+        (account != null ? widget.seek.withRatingRangeOf(account).ratingRange : null);
+
     return SafeArea(
       child: GameLayout(
         orientation: Side.white,
@@ -62,12 +69,11 @@ class _LobbyScreenLoadingContentState() extends State<LobbyScreenLoadingContent>
               const SizedBox(height: 26.0),
               _GameParamsDisplay.seek(widget.seek),
               //Do not show rating range if the default values (-500, +500) are used
-              if (widget.seek.ratingRange != null &&
-                  !(widget.seek.ratingRange!.$1 + 1000 == widget.seek.ratingRange!.$2)) ...[
+              if (ratingRange != null && !(ratingRange.$1 + 1000 == ratingRange.$2)) ...[
                 const SizedBox(height: 8.0),
                 RatingPrefAware(
                   child: Text(
-                    '${widget.seek.ratingRange!.$1}-${widget.seek.ratingRange!.$2}',
+                    '${ratingRange.$1}-${ratingRange.$2}',
                     style: TextTheme.of(context).titleMedium,
                   ),
                 ),
