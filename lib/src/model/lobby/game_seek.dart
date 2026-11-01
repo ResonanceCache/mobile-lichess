@@ -61,7 +61,12 @@ sealed class const GameSeek._() with _$GameSeek {
       ),
       rated: account != null && setup.customRated,
       variant: setup.customVariant,
-      ratingRange: account != null ? setup.realTimeRatingRange(account) : null,
+      // Store the rating delta rather than a fixed range: the range is computed from the user's
+      // current rating each time the seek is created, so that it stays up to date when searching
+      // for a new opponent after a game.
+      ratingDelta: account != null && setup.customRatingDelta != kDefaultRatingDelta
+          ? setup.customRatingDelta
+          : null,
     );
   }
 

@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:lichess_mobile/src/binding/binding.dart';
 import 'package:lichess_mobile/src/model/account/account_preferences.dart';
+import 'package:lichess_mobile/src/model/account/account_repository.dart';
 import 'package:lichess_mobile/src/model/account/ongoing_games_notifier.dart';
 import 'package:lichess_mobile/src/model/analysis/analysis_controller.dart';
 import 'package:lichess_mobile/src/model/challenge/challenge_repository.dart';
@@ -885,6 +886,12 @@ class GameController(final GameFullId gameFullId)
             black: endData.clock!.black,
             activeSide: newState.activeClockSide,
           );
+        }
+
+        // The user's ratings have changed after a rated game: refresh the account so that the
+        // ratings shown in the app (and the rating range of the next seek) are up to date.
+        if (curState.game.meta.rated && curState.game.youAre != null) {
+          ref.invalidate(accountProvider);
         }
 
         if (curState.game.lastPosition.fullmoves > 1) {

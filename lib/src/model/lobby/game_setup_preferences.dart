@@ -77,20 +77,6 @@ sealed class const GameSetupPrefs._() with _$GameSetupPrefs implements Serializa
   Perf get realTimePerf =>
       Perf.fromVariantAndSpeed(customVariant, Speed.fromTimeIncrement(timeIncrement));
 
-  /// Returns the real time rating range for the custom setup.
-  ///
-  /// Returns null if the rating delta is the default (no custom range).
-  /// Returns null if the user doesn't have a rating for the custom setup perf.
-  (int, int)? realTimeRatingRange(User user) {
-    if (customRatingDelta == kDefaultRatingDelta) return null;
-    final perf = user.perfs[realTimePerf];
-    if (perf == null) return null;
-    if (perf.provisional == true) return null;
-    final min = math.max(0, perf.rating + customRatingDelta.$1);
-    final max = perf.rating + customRatingDelta.$2;
-    return (min, max);
-  }
-
   /// Returns the correspondence rating range for the custom setup.
   ///
   /// Returns null if the rating delta is the default (no custom range).
